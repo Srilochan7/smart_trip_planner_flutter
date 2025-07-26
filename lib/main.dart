@@ -12,12 +12,10 @@ import 'package:smart_trip_planner/Presentations/Screens/home.dart';
 
 
 Future<void> main() async {
-   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
+    WidgetsFlutterBinding.ensureInitialized(); // ✅ This is required
+  await Hive.initFlutter(); // initializes Hive with path_provider
   Hive.registerAdapter(UserHiveModelAdapter());
-  if (!Hive.isAdapterRegistered(0)) {
-    Hive.registerAdapter(UserHiveModelAdapter());
-  }
+  await Hive.openBox<UserHiveModel>('userBox');
   runApp(const MyApp());
 }
 
