@@ -1,21 +1,30 @@
 part of 'itinerary_bloc.dart';
 
-@immutable
-sealed class ItineraryState {}
+// Make sure your base state extends Equatable for proper state comparison
+abstract class ItineraryState extends Equatable {
+  const ItineraryState();
 
-final class ItineraryInitial extends ItineraryState {}
-
-
-final class ItineraryLoading extends ItineraryState {}
-
-final class ItineraryLoaded extends ItineraryState {
-  final String itinerary;
-
-  ItineraryLoaded(this.itinerary);
+  @override
+  List<Object> get props => [];
 }
 
-final class ItineraryError extends ItineraryState {
-  final String message;
+class ItineraryInitial extends ItineraryState {}
 
-  ItineraryError(this.message);
+class ItineraryLoading extends ItineraryState {}
+
+
+class ItineraryLoaded extends ItineraryState {
+  final Itinerary itinerary;
+
+  const ItineraryLoaded(this.itinerary);
+  @override
+  List<Object> get props => [itinerary];
+}
+
+class ItineraryError extends ItineraryState {
+  final String message;
+  const ItineraryError(this.message);
+
+  @override
+  List<Object> get props => [message];
 }

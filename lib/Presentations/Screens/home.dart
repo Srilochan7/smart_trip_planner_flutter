@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:sizer/sizer.dart';
 import 'package:smart_trip_planner/Presentations/Screens/Itenanary.dart';
+import 'package:smart_trip_planner/Presentations/Screens/Profile.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -12,24 +13,27 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   TextEditingController _visionController = TextEditingController(
-    text: "7 days in Bali next April, 3 people, mid-range budget, wanted to explore less populated areas, it should be a peaceful trip!",
+    text: "",
   );
 
   @override
   Widget build(BuildContext context) {
     return Sizer(builder: (context, orientation, deviceType) {
       return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0,
-        leading: Container(),
+        appBar: AppBar(
+        
+          backgroundColor: Colors.white,
+          elevation: 0,
+        leading: BackButton(
+          color: Colors.black,
+        ),
         title: Row(
           children: [
             Text(
               'Hey Shubham 👋',
               style: TextStyle(
-                color: Colors.green,
+                color: Colors.black,
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w600,
               ),
@@ -39,19 +43,24 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           Container(
             margin: EdgeInsets.only(right: 4.w),
-            child: CircleAvatar(
-              backgroundColor: Colors.green,
-              radius: 3.h,
-              child: Text(
-                'S',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
+            child: GestureDetector(
+              child: CircleAvatar(
+                backgroundColor: Colors.green,
+                radius: 2.h,
+                child: Text(
+                  'S',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
-          ),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfileScreen()),
+              ),
+          ),)
         ],
       ),
       body: SingleChildScrollView(
@@ -86,6 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     TextField(
                       controller: _visionController,
+                      
                       maxLines: 4,
                       style: TextStyle(
                         fontSize: 16.sp,
@@ -96,18 +106,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         hintText: "Describe your ideal trip...",
                         hintStyle: TextStyle(
                           color: Colors.grey,
-                          fontSize: 14.sp,
+                          fontSize: 16.sp,
                         ),
                       ),
                     ),
                     SizedBox(height: 2.h),
                     Align(
                       alignment: Alignment.centerRight,
-                      child: Icon(
-                        Icons.keyboard_arrow_down,
-                        color: Colors.green,
-                        size: 6.w,
-                      ),
+                      // child: Icon(
+                      //   Icons.keyboard_arrow_down,
+                      //   color: Colors.green,
+                      //   size: 6.w,
+                      // ),
                     ),
                   ],
                 ),

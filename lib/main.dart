@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:smart_trip_planner/Blocs/ItineraryBloc/itinerary_bloc.dart';
+import 'package:smart_trip_planner/Models/ItineraryModel.dart';
 import 'package:smart_trip_planner/Presentations/Screens/home.dart';
 
 void main() {
@@ -11,9 +14,9 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: HomeScreen(),
-      debugShowCheckedModeBanner: false,
+    return BlocProvider(
+      create: (context) => ItineraryBloc(),
+      child: MaterialApp(home: HomeScreen(), debugShowCheckedModeBanner: false),
     );
   }
 }

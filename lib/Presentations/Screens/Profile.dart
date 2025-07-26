@@ -10,12 +10,12 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Sizer(builder: (context, orientation, deviceType) {
       return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFFF5F5F5), // Light gray background
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Color(0xFFF5F5F5),
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black, size: 6.w),
+          icon: Icon(Icons.arrow_back_ios, color: Colors.black, size: 4.5.w),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -31,17 +31,17 @@ class ProfileScreen extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 5.w),
         child: Column(
           children: [
-            SizedBox(height: 5.h),
+            SizedBox(height: 3.h),
             Container(
               width: 100.w,
               padding: EdgeInsets.all(5.w),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(3.w),
+                borderRadius: BorderRadius.circular(4.w),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    spreadRadius: 1,
+                    color: Colors.grey.withOpacity(0.08),
+                    spreadRadius: 0,
                     blurRadius: 10,
                     offset: Offset(0, 2),
                   ),
@@ -52,14 +52,14 @@ class ProfileScreen extends StatelessWidget {
                   Row(
                     children: [
                       CircleAvatar(
-                        backgroundColor: Colors.green,
+                        backgroundColor: Color(0xFF2E7D32), // Same green as itinerary
                         radius: 4.h,
                         child: Text(
                           'S',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20.sp,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -70,16 +70,18 @@ class ProfileScreen extends StatelessWidget {
                           Text(
                             'Shubham S.',
                             style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              fontSize: 17.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black,
                             ),
                           ),
+                          SizedBox(height: 0.5.h),
                           Text(
                             'shubham.s@gmail.com',
                             style: TextStyle(
-                              fontSize: 14.sp,
+                              fontSize: 13.sp,
                               color: Colors.grey[600],
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                         ],
@@ -90,34 +92,34 @@ class ProfileScreen extends StatelessWidget {
                   _buildTokenItem(
                     'Request Tokens',
                     '100/1000',
-                    Colors.green,
+                    Color(0xFF2E7D32), // Green color
                     0.1,
                   ),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: 3.h),
                   _buildTokenItem(
                     'Response Tokens',
                     '75/1000',
-                    Colors.red,
+                    Color(0xFFFF6B35), // Orange/red color
                     0.075,
                   ),
-                  SizedBox(height: 3.h),
+                  SizedBox(height: 4.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         'Total Cost',
                         style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w500,
                           color: Colors.black87,
                         ),
                       ),
                       Text(
                         '\$0.07 USD',
                         style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green,
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF2E7D32),
                         ),
                       ),
                     ],
@@ -126,7 +128,7 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             Spacer(),
-            SizedBox(
+            Container(
               width: 100.w,
               child: TextButton(
                 onPressed: () {
@@ -134,18 +136,22 @@ class ProfileScreen extends StatelessWidget {
                 },
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 2.h),
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(3.w),
+                  ),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.logout, color: Colors.red, size: 5.w),
+                    Icon(Icons.logout, color: Colors.red, size: 4.w),
                     SizedBox(width: 2.w),
                     Text(
                       'Log Out',
                       style: TextStyle(
                         color: Colors.red,
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
@@ -170,27 +176,30 @@ class ProfileScreen extends StatelessWidget {
             Text(
               title,
               style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w500,
                 color: Colors.black87,
               ),
             ),
             Text(
               value,
               style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w500,
                 color: Colors.black87,
               ),
             ),
           ],
         ),
         SizedBox(height: 1.h),
-        LinearProgressIndicator(
-          value: progress,
-          backgroundColor: Colors.grey.withOpacity(0.2),
-          valueColor: AlwaysStoppedAnimation<Color>(color),
-          minHeight: 1.h,
+        ClipRRect(
+          borderRadius: BorderRadius.circular(1.w),
+          child: LinearProgressIndicator(
+            value: progress,
+            backgroundColor: Colors.grey.withOpacity(0.15),
+            valueColor: AlwaysStoppedAnimation<Color>(color),
+            minHeight: 0.8.h,
+          ),
         ),
       ],
     );
@@ -201,19 +210,24 @@ class ProfileScreen extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(3.w),
+            borderRadius: BorderRadius.circular(4.w),
           ),
           title: Text(
             'Log Out',
             style: TextStyle(
               fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
             ),
           ),
           content: Text(
             'Are you sure you want to log out?',
-            style: TextStyle(fontSize: 14.sp),
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: Colors.grey[700],
+            ),
           ),
           actions: [
             TextButton(
@@ -223,8 +237,9 @@ class ProfileScreen extends StatelessWidget {
               child: Text(
                 'Cancel',
                 style: TextStyle(
-                  color: Colors.grey,
+                  color: Colors.grey[600],
                   fontSize: 14.sp,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
@@ -240,6 +255,7 @@ class ProfileScreen extends StatelessWidget {
                   SnackBar(
                     content: Text('Logged out successfully'),
                     duration: Duration(seconds: 2),
+                    backgroundColor: Colors.green,
                   ),
                 );
               },
@@ -248,12 +264,14 @@ class ProfileScreen extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(2.w),
                 ),
+                elevation: 0,
               ),
               child: Text(
                 'Log Out',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 14.sp,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
