@@ -1,9 +1,13 @@
 // screens/home_screen.dart
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:sizer/sizer.dart';
+import 'package:smart_trip_planner/HiveModels/TripsHiveModel/TripsHiveModel.dart';
 import 'package:smart_trip_planner/Presentations/Screens/Itenanary.dart';
 import 'package:smart_trip_planner/Presentations/Screens/Profile.dart';
+import 'package:smart_trip_planner/Presentations/Screens/Saved.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -94,6 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   children: [
                     TextField(
+                      
                       controller: _visionController,
                       
                       maxLines: 4,
@@ -102,6 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: Colors.black87,
                       ),
                       decoration: InputDecoration(
+                        
                         border: InputBorder.none,
                         hintText: "Describe your ideal trip...",
                         hintStyle: TextStyle(
@@ -128,10 +134,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 6.h,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
+                    if(_visionController.text.isEmpty){
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please describe your ideal trip")));
+                    }
+                    else{
+                      Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => ItineraryResultScreen(prompt: _visionController.text)),
                     );
+                    }
+                    
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
@@ -160,23 +172,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               SizedBox(height: 2.h),
-              _buildItineraryItem(
-                "Japan Trip, 20 days vacation, explore ky...",
-                Colors.green,
+ValueListenableBuilder(
+  valueListenable: Hive.box<TripsHiveModel>('itineraries').listenable(),
+  builder: (context, Box<TripsHiveModel> box, _) {
+    if (box.isEmpty) {
+      return Text(
+        "No saved itineraries yet.",
+        style: TextStyle(fontSize: 14.sp),
+      );
+    }
+
+    return Column(
+      children: List.generate(box.length, (index) {
+        final trip = box.getAt(index);
+        return _buildItineraryItem(
+          trip?.prompt ?? "Untitled",
+          Colors.green,
+          () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    Saved(trip: trip!),
               ),
-              _buildItineraryItem(
-                "India Trip, 7 days work trip, suggest affor...",
-                Colors.green,
-              ),
-              _buildItineraryItem(
-                "Europe trip, include Paris, Berlin, Dortmun...",
-                Colors.green,
-              ),
-              _buildItineraryItem(
-                "Two days weekend getaway to somewhe...",
-                Colors.green,
-              ),
-              SizedBox(height: 5.h),
+            );
+          },
+        );
+      }),
+    );
+  },
+),
+
+SizedBox(height: 5.h),
+
             ],
           ),
         ),
@@ -185,43 +213,46 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Widget _buildItineraryItem(String title, Color color) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 2.h),
-      padding: EdgeInsets.all(4.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(2.w),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 2.w,
-            height: 2.w,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
+  Widget _buildItineraryItem(String title, Color color, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: EdgeInsets.only(bottom: 2.h),
+        padding: EdgeInsets.all(4.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(2.w),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 1,
+              blurRadius: 5,
+              offset: Offset(0, 2),
             ),
-          ),
-          SizedBox(width: 3.w),
-          Expanded(
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: Colors.black87,
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 2.w,
+              height: 2.w,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
               ),
             ),
-          ),
-        ],
+            SizedBox(width: 3.w),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

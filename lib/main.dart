@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:smart_trip_planner/Blocs/ItineraryBloc/itinerary_bloc.dart';
-import 'package:smart_trip_planner/HiveModels/UserHiveModel.dart';
+import 'package:smart_trip_planner/HiveModels/TripsHiveModel/TripsHiveModel.dart';
+import 'package:smart_trip_planner/HiveModels/UserHiveModel/UserHiveModel.dart';
 import 'package:smart_trip_planner/Models/ItineraryModel.dart';
 import 'package:smart_trip_planner/Presentations/Screens/home.dart';
 
@@ -12,12 +13,16 @@ import 'package:smart_trip_planner/Presentations/Screens/home.dart';
 
 
 Future<void> main() async {
-    WidgetsFlutterBinding.ensureInitialized(); // ✅ This is required
-  await Hive.initFlutter(); // initializes Hive with path_provider
-  Hive.registerAdapter(UserHiveModelAdapter());
-  await Hive.openBox<UserHiveModel>('userBox');
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+
+  Hive.registerAdapter(TripsHiveModelAdapter()); 
+
+  await Hive.openBox<TripsHiveModel>('itineraries');
+
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
