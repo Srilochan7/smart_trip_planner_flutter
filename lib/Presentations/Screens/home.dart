@@ -1,0 +1,224 @@
+// screens/home_screen.dart
+import 'package:flutter/material.dart';
+
+import 'package:sizer/sizer.dart';
+import 'package:smart_trip_planner/Presentations/Screens/Itenanary.dart';
+
+
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  TextEditingController _visionController = TextEditingController(
+    text: "7 days in Bali next April, 3 people, mid-range budget, wanted to explore less populated areas, it should be a peaceful trip!",
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Sizer(builder: (context, orientation, deviceType) {
+      return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: Container(),
+        title: Row(
+          children: [
+            Text(
+              'Hey Shubham 👋',
+              style: TextStyle(
+                color: Colors.green,
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          Container(
+            margin: EdgeInsets.only(right: 4.w),
+            child: CircleAvatar(
+              backgroundColor: Colors.green,
+              radius: 3.h,
+              child: Text(
+                'S',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 5.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 3.h),
+              Text(
+                "What's your vision\nfor this trip?",
+                style: TextStyle(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                  height: 1.2,
+                ),
+              ),
+              SizedBox(height: 4.h),
+              Container(
+                width: 100.w,
+                padding: EdgeInsets.all(4.w),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(3.w),
+                  border: Border.all(
+                    color: Colors.green.withOpacity(0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _visionController,
+                      maxLines: 4,
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        color: Colors.black87,
+                      ),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: "Describe your ideal trip...",
+                        hintStyle: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 14.sp,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Icon(
+                        Icons.keyboard_arrow_down,
+                        color: Colors.green,
+                        size: 6.w,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 4.h),
+              SizedBox(
+                width: 100.w,
+                height: 6.h,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ItineraryResultScreen(prompt: _visionController.text)),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(3.w),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    'Create My Itinerary',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 4.h),
+              Text(
+                'Offline Saved Itineraries',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              SizedBox(height: 2.h),
+              _buildItineraryItem(
+                "Japan Trip, 20 days vacation, explore ky...",
+                Colors.green,
+              ),
+              _buildItineraryItem(
+                "India Trip, 7 days work trip, suggest affor...",
+                Colors.green,
+              ),
+              _buildItineraryItem(
+                "Europe trip, include Paris, Berlin, Dortmun...",
+                Colors.green,
+              ),
+              _buildItineraryItem(
+                "Two days weekend getaway to somewhe...",
+                Colors.green,
+              ),
+              SizedBox(height: 5.h),
+            ],
+          ),
+        ),
+      ),
+    );
+    });
+  }
+
+  Widget _buildItineraryItem(String title, Color color) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 2.h),
+      padding: EdgeInsets.all(4.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(2.w),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 2.w,
+            height: 2.w,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+            ),
+          ),
+          SizedBox(width: 3.w),
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _visionController.dispose();
+    super.dispose();
+  }
+}
