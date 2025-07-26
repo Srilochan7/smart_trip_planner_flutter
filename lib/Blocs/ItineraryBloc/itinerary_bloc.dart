@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
-import 'package:smart_trip_planner/ApiServices.dart';
+import 'package:smart_trip_planner/Services/ApiServices.dart';
 import 'package:smart_trip_planner/Models/ItineraryModel.dart';
 
 part 'itinerary_event.dart';
