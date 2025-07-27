@@ -139,13 +139,8 @@ This project is licensed under the MIT License.
 
 ---
 
-## Disclaimer
-
-- This app uses the Gemini API. Ensure you comply with Google’s terms of service.
-- Do not commit your API key to public repositories.
-
 ---
 
 ## Contact
 
-For questions or support, open an issue or contact [your-email@example.com](mailto:your-email@example.com).
+For questions or support, open an issue or contact [your-email@example.com](mailto:srilochan7@gmail.com).
