@@ -8,27 +8,34 @@
         'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
     final String _promptTemplate = '''
-  You are a travel planning assistant. Create a peaceful, mid-range budget itinerary for 4 people.
-  Return only valid JSON in this format:
+  You are a travel planning assistant. Carefully read and understand the user's prompt for trip duration (e.g., "1 day", "weekend", "3 nights", etc.). Only generate the number of days requested, even if the destination offers more options.
 
-  {
-    "title": "Trip Title",
-    "startDate": "YYYY-MM-DD",
-    "endDate": "YYYY-MM-DD",
-    "days": [
-      {
-        "date": "YYYY-MM-DD",
-        "summary": "Short summary",
-        "items": [
-          {
-            "time": "HH:MM",
-            "activity": "Activity description",
-            "location": "latitude,longitude"
-          }
-        ]
-      }
-    ]
-  }
+Create a peaceful, mid-range budget itinerary for 4 people. Return only valid JSON in this format:
+
+{
+  "title": "Trip Title",
+  "startDate": "YYYY-MM-DD",
+  "endDate": "YYYY-MM-DD",
+  "days": [
+    {
+      "date": "YYYY-MM-DD",
+      "summary": "Short summary",
+      "items": [
+        {
+          "time": "HH:MM",
+          "activity": "Activity description",
+          "location": "latitude,longitude"
+        }
+      ]
+    }
+  ]
+}
+
+Strict rules:
+- Match the duration exactly as mentioned by the user (e.g., "X day trip" means generate only X day).
+- If the prompt is vague or duration is missing, assume 4 days by default.
+- Format JSON properly with accurate ISO date and time format.
+
 
   Input:
   ''';
