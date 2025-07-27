@@ -10,3 +10,14 @@ final class FetchItinerary extends ItineraryEvent {
   FetchItinerary(this.prompt);
 }
 
+
+
+class ItinerarySaveOffline extends ItineraryEvent {
+  final String prompt;
+  final String result;
+
+  ItinerarySaveOffline(this.prompt, this.result);
+}
+
+
+class ItinerarySaveOfflineState extends ItineraryState {}

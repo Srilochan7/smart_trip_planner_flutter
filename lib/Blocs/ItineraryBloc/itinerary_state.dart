@@ -29,6 +29,6 @@ class ItineraryError extends ItineraryState {
 }
 
 
-class ItinerarySaveOffile extends ItineraryState{
+class ItinerarySaveOffilne extends ItineraryState{
   
 }
