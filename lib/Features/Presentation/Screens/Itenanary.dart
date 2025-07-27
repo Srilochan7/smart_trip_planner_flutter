@@ -3,12 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:sizer/sizer.dart';
 
-import 'package:smart_trip_planner/Blocs/ItineraryBloc/itinerary_bloc.dart';
-import 'package:smart_trip_planner/Blocs/RefineBloc/refine_event.dart';
-import 'package:smart_trip_planner/HiveModels/TripsHiveModel/TripsHiveModel.dart';
-import 'package:smart_trip_planner/Models/ItineraryModel.dart';
-import 'package:smart_trip_planner/Presentations/Screens/Profile.dart';
-import 'package:smart_trip_planner/Presentations/Screens/Refine.dart';
+import 'package:smart_trip_planner/Features/Presentation/Blocs/ItineraryBloc/itinerary_bloc.dart';
+import 'package:smart_trip_planner/Features/Presentation/Blocs/RefineBloc/refine_event.dart';
+import 'package:smart_trip_planner/Features/Models/TripsHiveModel/TripsHiveModel.dart';
+import 'package:smart_trip_planner/Features/Models/itineraryModel/ItineraryModel.dart';
+import 'package:smart_trip_planner/Features/Presentation/Screens/Profile.dart';
+import 'package:smart_trip_planner/Features/Presentation/Screens/Refine.dart';
 
 class ItineraryResultScreen extends StatefulWidget {
   final String prompt;

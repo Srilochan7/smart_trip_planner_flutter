@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sizer/sizer.dart';
-import 'package:smart_trip_planner/Blocs/ItineraryBloc/itinerary_bloc.dart';
-import 'package:smart_trip_planner/Blocs/RefineBloc/refine_bloc.dart';
-import 'package:smart_trip_planner/Blocs/RefineBloc/refine_event.dart';
-import 'package:smart_trip_planner/Blocs/RefineBloc/refine_state.dart';
-import 'package:smart_trip_planner/Models/ChatModel.dart';
-import 'package:smart_trip_planner/Models/ItineraryModel.dart';
+import 'package:smart_trip_planner/Features/Presentation/Blocs/ItineraryBloc/itinerary_bloc.dart';
+import 'package:smart_trip_planner/Features/Presentation/Blocs/RefineBloc/refine_bloc.dart';
+import 'package:smart_trip_planner/Features/Presentation/Blocs/RefineBloc/refine_event.dart';
+import 'package:smart_trip_planner/Features/Presentation/Blocs/RefineBloc/refine_state.dart';
+import 'package:smart_trip_planner/Features/Domain/Entites/ChatModel.dart';
+import 'package:smart_trip_planner/Features/Models/itineraryModel/ItineraryModel.dart';
 
 class RefineScreen extends StatelessWidget {
   final String prompt;

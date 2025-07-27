@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:smart_trip_planner/Blocs/ItineraryBloc/itinerary_bloc.dart';
-import 'package:smart_trip_planner/HiveModels/TripsHiveModel/TripsHiveModel.dart';
-import 'package:smart_trip_planner/HiveModels/UserHiveModel/UserHiveModel.dart';
-import 'package:smart_trip_planner/Models/ItineraryModel.dart';
-import 'package:smart_trip_planner/Presentations/Screens/home.dart';
+import 'package:smart_trip_planner/Features/Presentation/Blocs/ItineraryBloc/itinerary_bloc.dart';
+import 'package:smart_trip_planner/Features/Models/TripsHiveModel/TripsHiveModel.dart';
+import 'package:smart_trip_planner/Features/Models/itineraryModel/ItineraryModel.dart';
+import 'package:smart_trip_planner/Features/Presentation/Screens/home.dart';
 
 // void main() {
 //   runApp(const MyApp());

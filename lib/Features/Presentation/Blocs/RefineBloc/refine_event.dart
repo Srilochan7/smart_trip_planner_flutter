@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:smart_trip_planner/Models/ItineraryModel.dart';
+import 'package:smart_trip_planner/Features/Models/itineraryModel/ItineraryModel.dart';
 
 // Events
 abstract class RefineEvent extends Equatable {

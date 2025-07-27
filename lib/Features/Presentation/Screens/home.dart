@@ -4,10 +4,10 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:sizer/sizer.dart';
-import 'package:smart_trip_planner/HiveModels/TripsHiveModel/TripsHiveModel.dart';
-import 'package:smart_trip_planner/Presentations/Screens/Itenanary.dart';
-import 'package:smart_trip_planner/Presentations/Screens/Profile.dart';
-import 'package:smart_trip_planner/Presentations/Screens/Saved.dart';
+import 'package:smart_trip_planner/Features/Models/TripsHiveModel/TripsHiveModel.dart';
+import 'package:smart_trip_planner/Features/Presentation/Screens/Itenanary.dart';
+import 'package:smart_trip_planner/Features/Presentation/Screens/Profile.dart';
+import 'package:smart_trip_planner/Features/Presentation/Screens/Saved.dart';
 
 
 class HomeScreen extends StatefulWidget {

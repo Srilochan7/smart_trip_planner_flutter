@@ -2,10 +2,11 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
 import 'package:meta/meta.dart';
-import 'package:smart_trip_planner/Blocs/RefineBloc/refine_event.dart';
-import 'package:smart_trip_planner/HiveModels/TripsHiveModel/TripsHiveModel.dart';
-import 'package:smart_trip_planner/Services/ApiServices.dart';
-import 'package:smart_trip_planner/Models/ItineraryModel.dart';
+import 'package:smart_trip_planner/Features/Presentation/Blocs/RefineBloc/refine_event.dart';
+import 'package:smart_trip_planner/Features/Models/TripsHiveModel/TripsHiveModel.dart';
+
+import 'package:smart_trip_planner/Features/Models/itineraryModel/ItineraryModel.dart';
+import 'package:smart_trip_planner/features/Services/ApiServices.dart';
 
 part 'itinerary_event.dart';
 part 'itinerary_state.dart';

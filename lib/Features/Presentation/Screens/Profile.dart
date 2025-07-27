@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:sizer/sizer.dart';
-import 'package:smart_trip_planner/Presentations/Screens/home.dart';
+import 'package:smart_trip_planner/Features/Presentation/Screens/home.dart';
 
 
 class ProfileScreen extends StatelessWidget {

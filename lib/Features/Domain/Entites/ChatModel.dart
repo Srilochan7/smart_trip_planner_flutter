@@ -1,4 +1,4 @@
-import 'package:smart_trip_planner/Models/ItineraryModel.dart';
+import 'package:smart_trip_planner/Features/Models/itineraryModel/ItineraryModel.dart';
 
 class ChatMessage  {
   final bool isUser;

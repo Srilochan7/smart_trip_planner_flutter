@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
-import 'package:smart_trip_planner/HiveModels/TripsHiveModel/TripsHiveModel.dart';
+import 'package:smart_trip_planner/Features/Models/TripsHiveModel/TripsHiveModel.dart';
 
 class Saved extends StatelessWidget {
   final TripsHiveModel trip;

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:smart_trip_planner/Models/ChatModel.dart';
+import 'package:smart_trip_planner/Features/Domain/Entites/ChatModel.dart';
 
 abstract class RefineState extends Equatable {
   @override
