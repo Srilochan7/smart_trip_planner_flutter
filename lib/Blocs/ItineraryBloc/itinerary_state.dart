@@ -1,6 +1,5 @@
 part of 'itinerary_bloc.dart';
 
-// Make sure your base state extends Equatable for proper state comparison
 abstract class ItineraryState extends Equatable {
   const ItineraryState();
 
@@ -27,4 +26,9 @@ class ItineraryError extends ItineraryState {
 
   @override
   List<Object> get props => [message];
+}
+
+
+class ItinerarySaveOffile extends ItineraryState{
+  
 }

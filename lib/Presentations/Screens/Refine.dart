@@ -1,72 +1,137 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sizer/sizer.dart';
+import 'package:smart_trip_planner/Blocs/ItineraryBloc/itinerary_bloc.dart';
+import 'package:smart_trip_planner/Blocs/RefineBloc/refine_bloc.dart';
+import 'package:smart_trip_planner/Blocs/RefineBloc/refine_event.dart';
+import 'package:smart_trip_planner/Blocs/RefineBloc/refine_state.dart';
+import 'package:smart_trip_planner/Models/ChatModel.dart';
+import 'package:smart_trip_planner/Models/ItineraryModel.dart';
 
-class RefineScreen extends StatefulWidget {
+class RefineScreen extends StatelessWidget {
   final String prompt;
   
   const RefineScreen({Key? key, required this.prompt}) : super(key: key);
   
   @override
-  _RefineScreenState createState() => _RefineScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => RefineBloc(context.read<ItineraryBloc>())
+        ..add(InitializeRefine(prompt)),
+      child: const RefineView(),
+    );
+  }
 }
 
-class _RefineScreenState extends State<RefineScreen> {
-  final TextEditingController _messageController = TextEditingController();
+class RefineView extends StatefulWidget {
+  const RefineView({Key? key}) : super(key: key);
+
+  @override
+  State<RefineView> createState() => _RefineViewState();
+}
+
+class _RefineViewState extends State<RefineView> {
+  final TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return Sizer(
-      builder: (context, orientation, deviceType) {
-        return Scaffold(
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<ItineraryBloc, ItineraryState>(
+          listener: (context, state) {
+            if (state is ItineraryLoaded) {
+              context.read<RefineBloc>().onItineraryUpdated(state.itinerary);
+            } else if (state is ItineraryError) {
+              context.read<RefineBloc>().onItineraryError(state.message);
+            }
+          },
+        ),
+      ],
+      child: Sizer(
+        builder: (context, orientation, deviceType) => Scaffold(
           backgroundColor: Colors.grey[50],
-          appBar: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.black),
-              onPressed: () => Navigator.pop(context),
-            ),
-            title: Text(
-              '7 days in Bali...',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            actions: [
-              Container(
-                margin: EdgeInsets.only(right: 4.w),
-                child: CircleAvatar(
-                  backgroundColor: Colors.green,
-                  radius: 2.5.h,
-                  child: Text(
-                    'S',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          appBar: _buildAppBar(),
           body: Column(
             children: [
-              Expanded(
-                child: ListView(
-                  padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
-                  children: [
-                    // User message
-                    _buildUserMessage(),
-                    SizedBox(height: 2.h),
-                    // AI response
-                    _buildAIResponse(),
-                  ],
-                ),
-              ),
+              Expanded(child: _buildChatList()),
               _buildInputSection(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      backgroundColor: Colors.white,
+      elevation: 0,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Colors.black),
+        onPressed: () => Navigator.pop(context),
+      ),
+      title: Text(
+        'Refine Itinerary',
+        style: TextStyle(color: Colors.black, fontSize: 18.sp, fontWeight: FontWeight.w500),
+      ),
+      actions: [
+        Container(
+          margin: EdgeInsets.only(right: 4.w),
+          child: CircleAvatar(
+            backgroundColor: Colors.green,
+            radius: 2.5.h,
+            child: Text('S', style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChatList() {
+    return BlocBuilder<RefineBloc, RefineState>(
+      builder: (context, state) {
+        if (state is RefineLoaded) {
+          return ListView.builder(
+            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+            itemCount: state.messages.length + (state.isRefining ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index == state.messages.length && state.isRefining) {
+                return const LoadingMessage();
+              }
+              
+              final message = state.messages[index];
+              return message.isUser 
+                  ? UserMessage(message: message)
+                  : AIMessage(message: message);
+            },
+          );
+        }
+        
+        if (state is RefineError) {
+          return Center(child: Text('Error: ${state.message}', style: TextStyle(color: Colors.red)));
+        }
+        
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
+  }
+
+  Widget _buildInputSection() {
+    return BlocBuilder<RefineBloc, RefineState>(
+      builder: (context, state) {
+        final isRefining = state is RefineLoaded && state.isRefining;
+        
+        return Container(
+          padding: EdgeInsets.all(4.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), spreadRadius: 1, blurRadius: 5, offset: const Offset(0, -2))],
+          ),
+          child: Row(
+            children: [
+              Expanded(child: _buildTextField()),
+              SizedBox(width: 3.w),
+              _buildSendButton(isRefining),
             ],
           ),
         );
@@ -74,306 +139,314 @@ class _RefineScreenState extends State<RefineScreen> {
     );
   }
 
-  Widget _buildUserMessage() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CircleAvatar(
-          backgroundColor: Colors.green,
-          radius: 2.h,
-          child: Icon(
-            Icons.person,
-            color: Colors.white,
-            size: 2.5.h,
-          ),
-        ),
-        SizedBox(width: 3.w),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'You',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18.sp,
-                ),
+  Widget _buildTextField() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 4.w),
+      decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(25)),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _controller,
+              decoration: InputDecoration(
+                hintText: 'Follow up to refine',
+                border: InputBorder.none,
+                hintStyle: TextStyle(color: Colors.grey[600], fontSize: 16.sp),
               ),
-              SizedBox(height: 1.h),
-              Container(
-                padding: EdgeInsets.all(3.w),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  widget.prompt,
-                  style: TextStyle(fontSize: 16.sp),
-                ),
-              ),
-              SizedBox(height: 1.h),
-              Row(
-                children: [
-                  Icon(Icons.copy, size: 2.h, color: Colors.grey),
-                  SizedBox(width: 1.w),
-                  Text(
-                    'Copy',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAIResponse() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 4.h,
-          height: 4.h,
-          decoration: BoxDecoration(
-            color: Colors.orange,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Center(
-            child: Text(
-              'I',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16.sp,
-              ),
+              onSubmitted: (_) => _sendMessage(),
             ),
           ),
-        ),
-        SizedBox(width: 3.w),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Itinera AI',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18.sp,
-                ),
-              ),
-              SizedBox(height: 1.h),
-              _buildItineraryContent(),
-              SizedBox(height: 2.h),
-              _buildActionButtons(),
-            ],
-          ),
-        ),
-      ],
+          Icon(Icons.mic, color: Colors.grey[600], size: 2.5.h),
+        ],
+      ),
     );
   }
 
-  Widget _buildItineraryContent() {
+  Widget _buildSendButton(bool isRefining) {
     return Container(
-      padding: EdgeInsets.all(3.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
+      width: 6.h,
+      height: 6.h,
+      decoration: BoxDecoration(color: isRefining ? Colors.grey : Colors.green, shape: BoxShape.circle),
+      child: IconButton(
+        icon: isRefining 
+            ? SizedBox(width: 2.h, height: 2.h, child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+            : Icon(Icons.send, color: Colors.white, size: 2.5.h),
+        onPressed: isRefining ? null : _sendMessage,
       ),
-      child: Column(
+    );
+  }
+
+  void _sendMessage() {
+    if (_controller.text.trim().isEmpty) return;
+    
+    final message = _controller.text.trim();
+    context.read<RefineBloc>().add(AddUserMessage(message));
+    context.read<RefineBloc>().add(RefineItinerary(message));
+    _controller.clear();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+}
+
+// Widget Components
+class UserMessage extends StatelessWidget {
+  final ChatMessage message;
+  
+  const UserMessage({Key? key, required this.message}) : super(key: key);
+  
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 2.h),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildDayItem('Day 1:', 'Arrival in Bali & Settle in Ubud'),
-          _buildSubItem('Morning: Arrive in Bali, Denpasar Airport.'),
-          _buildSubItem('Transfer: Private driver to Ubud (around 1.5 hours).'),
-          _buildSubItem('Accommodation: Check-in at a boutique resort or guesthouse outside of villa in Ubud (e.g., Ubud Aura Retreat or Kamandalu at Bisma).'),
-          _buildSubItem('Afternoon: Explore Ubud\'s local area, walk through the tranquil rice terraces at Tegallalang.'),
-          _buildSubItem('Evening: Dinner at Locavore (known for farm-to-table dishes in a peaceful setting).'),
-          SizedBox(height: 2.h),
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 1.h, horizontal: 3.w),
-            decoration: BoxDecoration(
-              color: Colors.red[50],
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.red[200]!),
-            ),
-            child: Row(
+          CircleAvatar(backgroundColor: Colors.green, radius: 2.h, child: Icon(Icons.person, color: Colors.white, size: 2.5.h)),
+          SizedBox(width: 3.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.map_outlined, color: Colors.red, size: 2.h),
-                SizedBox(width: 2.w),
-                Expanded(
-                  child: Text(
-                    'Open in maps',
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 14.sp,
-                    ),
-                  ),
+                Text('You', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp)),
+                SizedBox(height: 1.h),
+                Container(
+                  padding: EdgeInsets.all(3.w),
+                  decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(12)),
+                  child: Text(message.message, style: TextStyle(fontSize: 16.sp)),
                 ),
-                Icon(Icons.open_in_new, color: Colors.red, size: 2.h),
+                SizedBox(height: 1.h),
+                const ActionRow(actions: ['Copy']),
               ],
-            ),
-          ),
-          SizedBox(height: 1.h),
-          Text(
-            'Mumbai to Bali, Indonesia | 11hrs 5mins',
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 11.sp,
             ),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildDayItem(String day, String description) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 1.h),
-      child: RichText(
-        text: TextSpan(
-          style: TextStyle(color: Colors.black, fontSize: 13.sp),
-          children: [
-            TextSpan(
-              text: day,
-              style: TextStyle(fontWeight: FontWeight.bold),
+class AIMessage extends StatelessWidget {
+  final ChatMessage message;
+  
+  const AIMessage({Key? key, required this.message}) : super(key: key);
+  
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 2.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 4.h, height: 4.h,
+            decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.circular(8)),
+            child: Center(child: Text('I', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.sp))),
+          ),
+          SizedBox(width: 3.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Itinera AI', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp)),
+                SizedBox(height: 1.h),
+                if (message.itinerary != null) ItineraryContent(itinerary: message.itinerary!) else MessageContent(message: message.message),
+                SizedBox(height: 2.h),
+                ActionRow(actions: const ['Copy', 'Save', 'Regenerate'], itinerary: message.itinerary),
+              ],
             ),
-            TextSpan(text: ' $description'),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+}
 
-  Widget _buildSubItem(String text) {
+class LoadingMessage extends StatelessWidget {
+  const LoadingMessage({Key? key}) : super(key: key);
+  
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 2.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 4.h, height: 4.h,
+            decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.circular(8)),
+            child: Center(child: Text('I', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.sp))),
+          ),
+          SizedBox(width: 3.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Itinera AI', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp)),
+                SizedBox(height: 1.h),
+                Container(
+                  padding: EdgeInsets.all(3.w),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey[200]!)),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.orange)),
+                      SizedBox(width: 3.w),
+                      Text('Updating your itinerary...', style: TextStyle(fontSize: 16.sp, fontStyle: FontStyle.italic)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MessageContent extends StatelessWidget {
+  final String message;
+  
+  const MessageContent({Key? key, required this.message}) : super(key: key);
+  
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(3.w),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey[200]!)),
+      child: Text(message, style: TextStyle(fontSize: 16.sp)),
+    );
+  }
+}
+
+class ItineraryContent extends StatelessWidget {
+  final Itinerary itinerary;
+  
+  const ItineraryContent({Key? key, required this.itinerary}) : super(key: key);
+  
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(3.w),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey[200]!)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Updated Itinerary:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp, color: Colors.green[700])),
+          SizedBox(height: 2.h),
+          ...itinerary.days.asMap().entries.map((entry) => DayContent(day: entry.value, index: entry.key)).toList(),
+          SizedBox(height: 2.h),
+          const MapLink(),
+        ],
+      ),
+    );
+  }
+}
+
+class DayContent extends StatelessWidget {
+  final dynamic day;
+  final int index;
+  
+  const DayContent({Key? key, required this.day, required this.index}) : super(key: key);
+  
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 2.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Day ${index + 1}: ${day.summary}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp, color: Colors.black87)),
+          SizedBox(height: 1.h),
+          ...day.items.map((item) => SubItem(text: '${item.time} - ${item.activity} (${item.location})')).toList(),
+        ],
+      ),
+    );
+  }
+}
+
+class SubItem extends StatelessWidget {
+  final String text;
+  
+  const SubItem({Key? key, required this.text}) : super(key: key);
+  
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(left: 4.w, bottom: 0.5.h),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            margin: EdgeInsets.only(top: 1.h),
-            width: 0.5.w,
-            height: 0.5.w,
-            decoration: BoxDecoration(
-              color: Colors.black,
-              shape: BoxShape.circle,
-            ),
-          ),
+          Container(margin: EdgeInsets.only(top: 1.h), width: 0.5.w, height: 0.5.w, decoration: const BoxDecoration(color: Colors.black, shape: BoxShape.circle)),
           SizedBox(width: 3.w),
-          Expanded(
-            child: Text(
-              text,
-              style: TextStyle(fontSize: 12.sp),
-            ),
-          ),
+          Expanded(child: Text(text, style: TextStyle(fontSize: 14.sp))),
         ],
       ),
     );
   }
+}
 
-  Widget _buildActionButtons() {
-    return Row(
-      children: [
-        Icon(Icons.copy, size: 2.h, color: Colors.grey),
-        SizedBox(width: 1.w),
-        Text(
-          'Copy',
-          style: TextStyle(color: Colors.grey, fontSize: 12.sp),
-        ),
-        SizedBox(width: 4.w),
-        Icon(Icons.share, size: 2.h, color: Colors.grey),
-        SizedBox(width: 1.w),
-        Text(
-          'Share Offline',
-          style: TextStyle(color: Colors.grey, fontSize: 12.sp),
-        ),
-        SizedBox(width: 4.w),
-        Icon(Icons.refresh, size: 2.h, color: Colors.grey),
-        SizedBox(width: 1.w),
-        Text(
-          'Regenerate',
-          style: TextStyle(color: Colors.grey, fontSize: 12.sp),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildInputSection() {
+class MapLink extends StatelessWidget {
+  const MapLink({Key? key}) : super(key: key);
+  
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(4.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: Offset(0, -2),
-          ),
-        ],
-      ),
+      padding: EdgeInsets.symmetric(vertical: 1.h, horizontal: 3.w),
+      decoration: BoxDecoration(color: Colors.red[50], borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.red[200]!)),
       child: Row(
         children: [
-          Expanded(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 4.w),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _messageController,
-                      decoration: InputDecoration(
-                        hintText: 'Follow up to refine',
-                        border: InputBorder.none,
-                        hintStyle: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14.sp,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Icon(Icons.mic, color: Colors.grey[600], size: 2.5.h),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(width: 3.w),
-          Container(
-            width: 6.h,
-            height: 6.h,
-            decoration: BoxDecoration(
-              color: Colors.green,
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: Icon(
-                Icons.send,
-                color: Colors.white,
-                size: 2.5.h,
-              ),
-              onPressed: () {
-                // Handle send message
-              },
-            ),
-          ),
+          Icon(Icons.map_outlined, color: Colors.red, size: 2.h),
+          SizedBox(width: 2.w),
+          Expanded(child: Text('Open in maps', style: TextStyle(color: Colors.red, fontSize: 14.sp))),
+          Icon(Icons.open_in_new, color: Colors.red, size: 2.h),
         ],
       ),
     );
   }
+}
 
+class ActionRow extends StatelessWidget {
+  final List<String> actions;
+  final Itinerary? itinerary;
+  
+  const ActionRow({Key? key, required this.actions, this.itinerary}) : super(key: key);
+  
   @override
-  void dispose() {
-    _messageController.dispose();
-    super.dispose();
+  Widget build(BuildContext context) {
+    return Row(
+      children: actions.map((action) => 
+        Padding(
+          padding: EdgeInsets.only(right: 4.w),
+          child: GestureDetector(
+            
+            child: Row(
+              children: [
+                Icon(_getIcon(action), size: 2.h, color: _getColor(action)),
+                SizedBox(width: 1.w),
+                Text(action, style: TextStyle(color: _getColor(action), fontSize: 14.sp)),
+              ],
+            ),
+          ),
+        ),
+      ).toList(),
+    );
   }
+  
+  IconData _getIcon(String action) {
+    switch (action) {
+      case 'Copy': return Icons.copy;
+      case 'Save': return Icons.bookmark;
+      case 'Regenerate': return Icons.refresh;
+      default: return Icons.help;
+    }
+  }
+  
+  Color _getColor(String action) {
+    return action == 'Save' && itinerary != null ? Colors.green : Colors.grey;
+  }
+  
 }
