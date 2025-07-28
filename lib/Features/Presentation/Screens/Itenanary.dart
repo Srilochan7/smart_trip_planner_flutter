@@ -26,34 +26,42 @@ class _ItineraryResultScreenState extends State<ItineraryResultScreen> {
     context.read<ItineraryBloc>().add(FetchItinerary(widget.prompt));
   }
 
-//   void saveItinerary(String prompt, String result) async {
-//   final box = Hive.box<TripsHiveModel>('itineraries');
+  void saveItinerary(String prompt, String result) async {
+    try {
+      final box = Hive.box<TripsHiveModel>('itineraries');
 
-//   final newItem = TripsHiveModel(
-//     prompt: prompt,
-//     response: result,
-//     createdAt: DateTime.now(),
-//   );
+      // Debug logs
+      print('Saving itinerary with prompt: "$prompt"');
+      print('Prompt length: ${prompt.length}');
 
-//   await box.add(newItem);
-// }
+      final newItem = TripsHiveModel(
+        prompt: prompt,
+        response: result,
+        createdAt: DateTime.now(),
+      );
 
-String formatItinerary(Itinerary itinerary) {
-  final buffer = StringBuffer();
-
-  for (int i = 0; i < itinerary.days.length; i++) {
-    final day = itinerary.days[i];
-    buffer.writeln("Day ${i + 1}: ${day.summary}");
-    for (var item in day.items) {
-      buffer.writeln("• ${item.time} - ${item.activity} (${item.location})");
+      await box.add(newItem);
+      print('Successfully saved to Hive');
+    } catch (e) {
+      print('Error saving itinerary: $e');
+      throw e;
     }
-    buffer.writeln(""); // extra space between days
   }
 
-  return buffer.toString().trim();
-}
+  String formatItinerary(Itinerary itinerary) {
+    final buffer = StringBuffer();
 
+    for (int i = 0; i < itinerary.days.length; i++) {
+      final day = itinerary.days[i];
+      buffer.writeln("Day ${i + 1}: ${day.summary}");
+      for (var item in day.items) {
+        buffer.writeln("• ${item.time} - ${item.activity} (${item.location})");
+      }
+      buffer.writeln(""); // extra space between days
+    }
 
+    return buffer.toString().trim();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -370,27 +378,42 @@ String formatItinerary(Itinerary itinerary) {
       width: double.infinity,
       child: OutlinedButton(
         onPressed: isLoading
-    ? null
-    : () {
-        final itineraryState = context.read<ItineraryBloc>().state;
-        if (itineraryState is ItineraryLoaded) {
-          final formattedResult = formatItinerary(itineraryState.itinerary);
-          
-          // saveItinerary(widget.prompt, formattedResult);
-          context.read<ItineraryBloc>().add(
-  ItinerarySaveOffline(
-    widget.prompt,
-    formattedResult,
-  ),
-);
+            ? null
+            : () async {
+                try {
+                  final itineraryState = context.read<ItineraryBloc>().state;
+                  if (itineraryState is ItineraryLoaded) {
+                    final formattedResult = formatItinerary(itineraryState.itinerary);
+                    
+                    // Debug: Check if prompt is empty
+                    print('Debug - Prompt: "${widget.prompt}"');
+                    print('Debug - Prompt length: ${widget.prompt.length}');
+                    
+                    // Use a fallback if prompt is empty
+                    final promptToSave = widget.prompt.trim().isEmpty 
+                        ? "My Trip Plan - ${DateTime.now().toString().substring(0, 16)}"
+                        : widget.prompt.trim();
+                    
+                     saveItinerary(promptToSave, formattedResult);
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Saved offline successfully')),
-          );
-          Navigator.pop(context);
-        }
-      },
-
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Saved offline successfully'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                    Navigator.pop(context);
+                  }
+                } catch (e) {
+                  print('Error saving itinerary: $e');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to save itinerary: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
         style: OutlinedButton.styleFrom(
           padding: EdgeInsets.symmetric(vertical: 2.h),
           side: BorderSide(color: Colors.grey[300]!),

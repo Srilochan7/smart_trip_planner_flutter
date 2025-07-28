@@ -7,6 +7,7 @@ import 'package:smart_trip_planner/Features/Presentation/Blocs/RefineBloc/refine
 import 'package:smart_trip_planner/Features/Presentation/Blocs/RefineBloc/refine_state.dart';
 import 'package:smart_trip_planner/Features/Domain/Entites/ChatModel.dart';
 import 'package:smart_trip_planner/Features/Models/itineraryModel/ItineraryModel.dart';
+import 'package:smart_trip_planner/Features/Presentation/Screens/home.dart';
 
 class RefineScreen extends StatelessWidget {
   final String prompt;
@@ -662,6 +663,7 @@ class ActionRow extends StatelessWidget {
       case 'Save':
         if (itinerary != null) {
           context.read<RefineBloc>().add(SaveItinerary());
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
         }
         break;
       case 'Regenerate':

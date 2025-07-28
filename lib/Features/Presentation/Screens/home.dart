@@ -134,18 +134,30 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 6.h,
                 child: ElevatedButton(
                   onPressed: () {
-                    if(_visionController.text.isEmpty){
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please describe your ideal trip")));
+                    final promptText = _visionController.text.trim();
+                    
+                    // Debug logging
+                    print('Debug HomeScreen - Prompt text: "$promptText"');
+                    print('Debug HomeScreen - Prompt length: ${promptText.length}');
+                    print('Debug HomeScreen - Is empty: ${promptText.isEmpty}');
+                    
+                    if(promptText.isEmpty){
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Please describe your ideal trip"))
+                      );
                     }
                     else{
+                      // Navigate with the trimmed prompt
                       Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ItineraryResultScreen(prompt: _visionController.text)),
-                     
-                    );
-                     _visionController.clear();
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ItineraryResultScreen(prompt: promptText)
+                        ),
+                      );
+                      
+                      // Clear the controller after navigation
+                      _visionController.clear();
                     }
-                    
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
@@ -177,27 +189,57 @@ class _HomeScreenState extends State<HomeScreen> {
 ValueListenableBuilder(
   valueListenable: Hive.box<TripsHiveModel>('itineraries').listenable(),
   builder: (context, Box<TripsHiveModel> box, _) {
+    // Debug logging for saved itineraries
+    print('Debug HomeScreen - Total saved itineraries: ${box.length}');
+    
     if (box.isEmpty) {
-      return Text(
-        "No saved itineraries yet.",
-        style: TextStyle(fontSize: 14.sp),
+      return Container(
+        padding: EdgeInsets.all(4.w),
+        decoration: BoxDecoration(
+          color: Colors.grey.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(2.w),
+          border: Border.all(
+            color: Colors.grey.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
+        child: Text(
+          "No saved itineraries yet. Create your first trip plan above!",
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: Colors.grey[600],
+            fontStyle: FontStyle.italic,
+          ),
+          textAlign: TextAlign.center,
+        ),
       );
     }
 
     return Column(
       children: List.generate(box.length, (index) {
         final trip = box.getAt(index);
+        
+        // Debug logging for each trip
+        print('Debug HomeScreen - Trip $index: "${trip?.prompt ?? "NULL"}"');
+        
+        // Handle null or empty prompts with a fallback
+        String displayTitle = trip?.prompt?.trim() ?? "";
+        if (displayTitle.isEmpty) {
+          displayTitle = "saved trip";
+        }
+        
         return _buildItineraryItem(
-          trip?.prompt ?? "Untitled",
+          displayTitle,
           Colors.green,
           () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    Saved(trip: trip!),
-              ),
-            );
+            if (trip != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Saved(trip: trip),
+                ),
+              );
+            }
           },
         );
       }),
@@ -234,8 +276,10 @@ SizedBox(height: 5.h),
           ],
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
+              margin: EdgeInsets.only(top: 0.5.h),
               width: 2.w,
               height: 2.w,
               decoration: BoxDecoration(
@@ -245,13 +289,36 @@ SizedBox(height: 5.h),
             ),
             SizedBox(width: 3.w),
             Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: Colors.black87,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                      height: 1.3,
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 0.5.h),
+                  Text(
+                    "Tap to view details",
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: Colors.grey[600],
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
               ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.grey[400],
+              size: 4.w,
             ),
           ],
         ),
