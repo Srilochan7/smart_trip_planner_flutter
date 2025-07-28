@@ -143,4 +143,4 @@ This project is licensed under the MIT License.
 
 ## Contact
 
-For questions or support, open an issue or contact [your-email@example.com](mailto:srilochan7@gmail.com).
+For questions or support, open an issue or contact [srilochan7@example.com](mailto:srilochan7@gmail.com).
